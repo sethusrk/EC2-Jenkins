@@ -27,7 +27,7 @@ resource "aws_security_group" "EC2Jennkins" {
 resource "aws_instance" "jenkins_master" {
   ami           = var.image_id
   instance_type = var.instance_type
-  security_groups = [var.EC2Jenkins_securitygroup_id]
+  vpc_security_group_ids = [var.EC2Jenkins_securitygroup_id]
 
   user_data = <<-EOF
     #!/bin/bash
@@ -49,7 +49,7 @@ resource "aws_instance" "jenkins_master" {
 resource "aws_instance" "jenkins_agent" {
   ami           = var.image_id
   instance_type = var.instance_type
-  security_groups = [var.EC2Jenkins_securitygroup_id]
+  vpc_security_group_ids= [var.EC2Jenkins_securitygroup_id]
 
   user_data = <<-EOF
     #!/bin/bash
