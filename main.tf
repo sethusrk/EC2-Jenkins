@@ -1,5 +1,5 @@
-resource "aws_security_group" "EC2Jennkins" {
-  vpc_id      = var.vpc_id
+resource "aws_security_group" "jenkins_sg" {
+  name_prefix = "jenkins_sg"
 
   ingress {
     from_port   = 22
@@ -7,27 +7,26 @@ resource "aws_security_group" "EC2Jennkins" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
   ingress {
     from_port   = 8080
     to_port     = 8080
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  tags = {
-    Name = "EC2Jennkins"
-  }
 }
 
 resource "aws_instance" "jenkins_master" {
   ami           = var.image_id
   instance_type = var.instance_type
-  vpc_security_group_ids = [var.EC2Jenkins_securitygroup_id]
+  security_groups = [aws_security_group.jenkins_sg.name]
 
   user_data = <<-EOF
     #!/bin/bash
@@ -49,7 +48,7 @@ resource "aws_instance" "jenkins_master" {
 resource "aws_instance" "jenkins_agent" {
   ami           = var.image_id
   instance_type = var.instance_type
-  vpc_security_group_ids= [var.EC2Jenkins_securitygroup_id]
+  security_groups = [aws_security_group.jenkins_sg.name]
 
   user_data = <<-EOF
     #!/bin/bash
