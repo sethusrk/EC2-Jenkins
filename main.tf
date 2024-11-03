@@ -23,3 +23,42 @@ resource "aws_security_group" "EC2Jennkins" {
     Name = "EC2Jennkins"
   }
 }
+
+resource "aws_instance" "jenkins_master" {
+  ami           = var.image_id
+  instance_type = var.instance_type
+  security_groups = [var.EC2Jenkins_securitygroup_id]
+
+  user_data = <<-EOF
+    #!/bin/bash
+    yum update -y
+    amazon-linux-extras install java-openjdk11 -y
+    wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+    rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+    yum install jenkins -y
+    systemctl enable jenkins
+    systemctl start jenkins
+  EOF
+
+  tags = {
+    Name = "Jenkins-Master"
+  }
+}
+
+
+resource "aws_instance" "jenkins_agent" {
+  ami           = var.image_id
+  instance_type = var.instance_type
+  security_groups = [var.EC2Jenkins_securitygroup_id]
+
+  user_data = <<-EOF
+    #!/bin/bash
+    yum update -y
+    amazon-linux-extras install java-openjdk11 -y
+    useradd jenkins
+  EOF
+
+  tags = {
+    Name = "Jenkins-Agent"
+  }
+}
